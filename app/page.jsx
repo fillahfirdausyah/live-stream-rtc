@@ -14,7 +14,7 @@ const MainPage = () => {
     socket.connect();
     // import('peerjs').then((Peer) => {
     if (inRoom) {
-      const peer = new Peer.default();
+      // const peer = new Peer.default();
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
         .then((stream) => {
