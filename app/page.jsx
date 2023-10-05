@@ -1,46 +1,46 @@
 'use client';
 import { React, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-// import Peer from 'peerjs';
+import Peer from 'peerjs';
 import { socket } from '@utils/socket';
 
 const MainPage = () => {
   const [roomId, setRoomId] = useState('');
   const [inRoom, setInRoom] = useState(false);
   const videoRef = useRef(null);
-  // const peer = new Peer();
+  const peer = new Peer();
 
   useEffect(() => {
     socket.connect();
-    import('peerjs').then((Peer) => {
-      if (inRoom) {
-        const peer = new Peer.default();
-        navigator.mediaDevices
-          .getUserMedia({ video: true, audio: true })
-          .then((stream) => {
-            videoRef.current.srcObject = stream;
-            videoRef.current.addEventListener('loadedmetadata', () => {
-              videoRef.current.play();
-            });
-
-            socket.on('viewer-joined', (viewerId) => {
-              peer.call(viewerId, stream);
-            });
+    // import('peerjs').then((Peer) => {
+    if (inRoom) {
+      const peer = new Peer.default();
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+          videoRef.current.addEventListener('loadedmetadata', () => {
+            videoRef.current.play();
           });
 
-        peer.on('open', (streamId) => {
-          socket.emit('join-as-streamer', roomId, streamId);
+          socket.on('viewer-joined', (viewerId) => {
+            peer.call(viewerId, stream);
+          });
         });
 
-        peer.on('close', (streamId) => {
-          socket.emit('disconnect-as-streamer', streamId);
-        });
+      peer.on('open', (streamId) => {
+        socket.emit('join-as-streamer', roomId, streamId);
+      });
 
-        socket.on('disconnect', (streamId) => {
-          socket.emit('disconnect-as-streamer', streamId);
-        });
-      }
-    });
+      peer.on('close', (streamId) => {
+        socket.emit('disconnect-as-streamer', streamId);
+      });
+
+      socket.on('disconnect', (streamId) => {
+        socket.emit('disconnect-as-streamer', streamId);
+      });
+    }
+    // });
 
     return () => {
       if (videoRef.current) {
